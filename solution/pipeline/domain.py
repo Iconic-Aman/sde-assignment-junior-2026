@@ -4,10 +4,10 @@ def effective_disposition(sets, overrides):
     return max(pool)[2] if pool else None
 
 
-def bucket(calls, is_terminal):
+def bucket(calls, is_terminal=None):
     if not calls:
         return "yet_to_reach_out"
-    if any(c.get("terminal") for c in calls):
+    if any(c.get("terminal") or (is_terminal and is_terminal(c.get("disposition"))) for c in calls):
         return "completed"
     if all(c.get("failed") for c in calls):
         return "in_progress_telephony_failed"

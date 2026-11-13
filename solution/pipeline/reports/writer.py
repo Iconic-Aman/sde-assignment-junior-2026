@@ -28,11 +28,11 @@ def _write_csv(path, header, rows):
 
 def _call_rows(connection):
     query = """
-    SELECT e.*, l.lead_id, d.is_terminal, d.is_success
-    FROM linked_events l JOIN events e ON e.seq=l.seq
-    LEFT JOIN dispositions d ON d.workflow_id=e.workflow_id AND d.code=e.disposition_code
-    WHERE l.lead_id IS NOT NULL AND e.call_id IS NOT NULL
-    ORDER BY e.workflow_id, e.call_id, e.occurred_at_utc, e.seq
+    SELECT l.*, d.is_terminal, d.is_success
+    FROM linked_events l
+    LEFT JOIN dispositions d ON d.workflow_id=l.workflow_id AND d.code=l.disposition_code
+    WHERE l.lead_id IS NOT NULL AND l.call_id IS NOT NULL
+    ORDER BY l.workflow_id, l.call_id, l.occurred_at_utc, l.seq
     """
     for key, group in groupby(connection.execute(query), key=lambda r: (r["workflow_id"], r["call_id"])):
         events = list(group)

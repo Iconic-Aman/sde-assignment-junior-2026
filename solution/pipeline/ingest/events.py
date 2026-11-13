@@ -32,7 +32,7 @@ def ingest_event_file(connection, drop, path):
                     raw = json.loads(line)
                     if not isinstance(raw, dict) or not raw.get("event_id"):
                         raise ValueError("Missing event_id")
-                    event = EventRecord.parse_obj(raw)
+                    event = EventRecord.model_validate(raw)
                     occurred = parse_timestamp(event.occurred_at)
                     event_type, workflow = event.event_type, event.workflow_id
                 except (ValueError, TypeError, ValidationError, json.JSONDecodeError):

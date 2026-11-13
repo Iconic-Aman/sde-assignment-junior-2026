@@ -1,7 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
 
-IST = ZoneInfo("Asia/Kolkata")
+try:
+    IST = ZoneInfo("Asia/Kolkata")
+except Exception:
+    IST = timezone(timedelta(hours=5, minutes=30))
 
 
 def parse_timestamp(value):
@@ -11,7 +14,7 @@ def parse_timestamp(value):
     parsed = datetime.fromisoformat(raw)
     if parsed.tzinfo is None:
         parsed = parsed.replace(tzinfo=IST)
-    return parsed.astimezone(ZoneInfo("UTC")).isoformat(timespec="microseconds")
+    return parsed.astimezone(timezone.utc).isoformat(timespec="microseconds")
 
 
 def as_ist(value):

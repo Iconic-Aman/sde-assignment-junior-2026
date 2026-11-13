@@ -52,10 +52,10 @@ CREATE VIEW IF NOT EXISTS event_lead AS
   LEFT JOIN leads l ON l.workflow_id=e.workflow_id AND l.phone_hash=e.phone_hash;
 
 CREATE VIEW IF NOT EXISTS call_lead AS
-  SELECT workflow_id, call_id, MIN(l.id) AS lead_id
+  SELECT e.workflow_id, e.call_id, MIN(l.id) AS lead_id
   FROM events e JOIN leads l ON l.workflow_id=e.workflow_id AND l.phone_hash=e.phone_hash
   WHERE e.call_id IS NOT NULL AND e.phone_hash IS NOT NULL
-  GROUP BY workflow_id, call_id;
+  GROUP BY e.workflow_id, e.call_id;
 
 CREATE VIEW IF NOT EXISTS linked_events AS
   SELECT e.*, CASE WHEN e.event_type='disposition.override' THEN c.lead_id

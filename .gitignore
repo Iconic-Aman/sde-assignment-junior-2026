@@ -6,8 +6,9 @@ __pycache__/
 *.sqlite*
 data/
 data_large/
-reports/
+/reports/
 final_state.csv
 .pytest_cache/
 .agents/
+instructions.md
 

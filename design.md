@@ -23,7 +23,7 @@ graph TB
         REG["File Registry\nsha256 + skip if seen"]
         LI["Lead Ingestor\nheaders, validate, reject, merge"]
         EI["Event Ingestor\nmalformed, dedupe, store"]
-        RULES["Rules Module\nphone, date, decimal, enum"]
+        RULES["Parsers Module\nphone, date, decimal, enum"]
         PII["PII Module\nHMAC hash + AES-GCM"]
         LI --> RULES
         LI --> PII
@@ -144,19 +144,21 @@ interaction-ledger/
 │   ├── db.py                  # connection, PRAGMAs, schema bootstrap
 │   ├── schema.sql             # tables, indexes, triggers, views
 │   ├── pii.py                 # phone HMAC, AES-GCM encrypt/decrypt
-│   ├── rules/
+│   ├── parsers/
+│   │   ├── __init__.py        # unified parse_field dispatcher
 │   │   ├── headers.py         # header normalisation + alias match
 │   │   ├── phone.py           # canonical +91XXXXXXXXXX or invalid
 │   │   ├── dates.py           # 4 date formats, day-first
 │   │   ├── decimals.py        # ₹ / Rs / INR, commas, round 2
 │   │   └── timestamps.py      # Z / offset / naive-as-IST → UTC, IST dates
 │   ├── ingest/
+│   │   ├── __init__.py
 │   │   ├── registry.py        # ingested_files, sha256, skip logic
 │   │   ├── leads.py           # validate, reject, merge
 │   │   └── events.py          # parse, dedupe, store
 │   ├── domain.py              # bucket + effective disposition (pure, tested)
 │   └── reports/
-│       ├── queries.sql        # aggregation in SQL
+│       ├── __init__.py
 │       └── writer.py          # exact CSV/JSON output
 ├── tests/
 │   ├── test_phone.py
@@ -378,7 +380,7 @@ Keys come from environment variables. They are never committed. A plain unkeyed 
 ### Phone normalisation (pure function)
 
 ```python
-# pipeline/rules/phone.py
+# pipeline/parsers/phone.py
 import re
 
 def normalise_phone(raw: str) -> str | None:
@@ -458,11 +460,11 @@ Output rules: header row, `,` delimiter, `\n` line endings, `true`/`false` boole
 **Goal:** Pure functions work and are tested
 
 - [ ] Repo skeleton, `.env.example`, `README.md`
-- [ ] `rules/headers.py` (lower, trim, collapse `_` and whitespace)
-- [ ] `rules/phone.py` with tests for all six formats
-- [ ] `rules/dates.py` (4 formats, day-first, impossible dates)
-- [ ] `rules/decimals.py` (₹, Rs, Rs., INR, commas, round 2, ≥ 0)
-- [ ] `rules/timestamps.py` (Z, offset, naive-as-IST)
+- [ ] `parsers/headers.py` (lower, trim, collapse `_` and whitespace)
+- [ ] `parsers/phone.py` with tests for all six formats
+- [ ] `parsers/dates.py` (4 formats, day-first, impossible dates)
+- [ ] `parsers/decimals.py` (₹, Rs, Rs., INR, commas, round 2, ≥ 0)
+- [ ] `parsers/timestamps.py` (Z, offset, naive-as-IST)
 
 **Deliverable:** `pytest` green on every parser.
 
